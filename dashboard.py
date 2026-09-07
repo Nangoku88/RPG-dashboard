@@ -188,9 +188,8 @@ def send_desktop_popup(title, message):
 
 # === MT5接続チェックとデータ取得 ===
 if 'mt5' in globals() and mt5:
-    # 自宅PC環境（MT5ライブラリが存在する場合）
     if not mt5.initialize():
-        st.error("❌ MT5の初期化に失敗しました。MetaTrader 5が起動しているか確認してください。")
+        st.error("❌ MT5の初期化に失敗しました。")
         tick = None
         d1_rates = []
         m1_rates = []
@@ -199,8 +198,10 @@ if 'mt5' in globals() and mt5:
         d1_rates = mt5.copy_rates_from_pos(SYMBOL, mt5.TIMEFRAME_D1, 0, 1)
         m1_rates = mt5.copy_rates_from_pos(SYMBOL, mt5.TIMEFRAME_M1, 0, 1)
 else:
-    # スマホ・クラウド環境（MT5ライブラリ自体がない場合）
-    tick = None
+    # ★ここがポイント：クラウドのときは「ダミーのtick（価格箱）」と「空のデータ箱」を作る！
+    class DummyTick:
+        bid = 153.500  # ダミーの現在値
+    tick = DummyTick()
     d1_rates = []
     m1_rates = []
 
