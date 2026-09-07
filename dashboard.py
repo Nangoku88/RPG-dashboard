@@ -188,6 +188,7 @@ def send_desktop_popup(title, message):
 
 # === MT5接続チェックとデータ取得 ===
 if 'mt5' in globals() and mt5:
+    # 自宅PC環境（MT5ライブラリが存在する場合）
     if not mt5.initialize():
         st.error("❌ MT5の初期化に失敗しました。MetaTrader 5が起動しているか確認してください。")
         tick = None
@@ -197,6 +198,11 @@ if 'mt5' in globals() and mt5:
         tick = mt5.symbol_info_tick(SYMBOL)
         d1_rates = mt5.copy_rates_from_pos(SYMBOL, mt5.TIMEFRAME_D1, 0, 1)
         m1_rates = mt5.copy_rates_from_pos(SYMBOL, mt5.TIMEFRAME_M1, 0, 1)
+else:
+    # スマホ・クラウド環境（MT5ライブラリ自体がない場合）
+    tick = None
+    d1_rates = []
+    m1_rates = []
 
 today_open = d1_rates[0]['open'] if d1_rates is not None and len(d1_rates) > 0 else 0.0
 today_low = d1_rates[0]['low'] if d1_rates is not None and len(d1_rates) > 0 else 0.0
