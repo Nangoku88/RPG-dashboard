@@ -187,21 +187,25 @@ def send_desktop_popup(title, message):
         print(f"[PC通知エラー] {e}")
 
 # === MT5接続チェックとデータ取得 ===
-if not mt5.initialize():
-    st.error("❌ MT5の初期化に失敗しました。MetaTrader 5が起動しているか確認してください。")
-else:
-    tick = mt5.symbol_info_tick(SYMBOL)
-    
-    d1_rates = mt5.copy_rates_from_pos(SYMBOL, mt5.TIMEFRAME_D1, 0, 1)
-    today_open = d1_rates[0]['open'] if d1_rates is not None and len(d1_rates) > 0 else 0.0
-    today_low = d1_rates[0]['low'] if d1_rates is not None and len(d1_rates) > 0 else 0.0
-    today_high = d1_rates[0]['high'] if d1_rates is not None and len(d1_rates) > 0 else 0.0
+if 'mt5' in globals() and mt5:
+    if not mt5.initialize():
+        st.error("❌ MT5の初期化に失敗しました。MetaTrader 5が起動しているか確認してください。")
+        tick = None
+        d1_rates = []
+        m1_rates = []
+    else:
+        tick = mt5.symbol_info_tick(SYMBOL)
+        d1_rates = mt5.copy_rates_from_pos(SYMBOL, mt5.TIMEFRAME_D1, 0, 1)
+        m1_rates = mt5.copy_rates_from_pos(SYMBOL, mt5.TIMEFRAME_M1, 0, 1)
 
-    m1_rates = mt5.copy_rates_from_pos(SYMBOL, mt5.TIMEFRAME_M1, 0, 1)
-    m1_high = m1_rates[0]['high'] if m1_rates is not None and len(m1_rates) > 0 else 0.0
-    m1_low = m1_rates[0]['low'] if m1_rates is not None and len(m1_rates) > 0 else 0.0
-    m1_time = m1_rates[0]['time'] if m1_rates is not None and len(m1_rates) > 0 else 0
-    m1_range_pips = (m1_high - m1_low) / PIP_VALUE
+today_open = d1_rates[0]['open'] if d1_rates is not None and len(d1_rates) > 0 else 0.0
+today_low = d1_rates[0]['low'] if d1_rates is not None and len(d1_rates) > 0 else 0.0
+today_high = d1_rates[0]['high'] if d1_rates is not None and len(d1_rates) > 0 else 0.0
+
+m1_high = m1_rates[0]['high'] if m1_rates is not None and len(m1_rates) > 0 else 0.0
+m1_low = m1_rates[0]['low'] if m1_rates is not None and len(m1_rates) > 0 else 0.0
+m1_time = m1_rates[0]['time'] if m1_rates is not None and len(m1_rates) > 0 else 0.0
+m1_range_pips = (m1_high - m1_low) / PIP_VALUE if PIP_VALUE > 0 else 0.0
 
     if tick:
         current_price = tick.bid
