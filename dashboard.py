@@ -3,7 +3,12 @@ import time
 import sys
 import requests
 import streamlit as st
-import MetaTrader5 as mt5
+# 6行目あたり
+try:
+    import MetaTrader5 as mt5
+    MT5_AVAILABLE = True
+except ImportError:
+    MT5_AVAILABLE = False
 from plyer import notification
 from datetime import datetime
 
