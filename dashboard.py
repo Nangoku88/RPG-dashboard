@@ -421,5 +421,5 @@ if tick:
             """, unsafe_allow_html=True)
 
                 # 2秒ごとに自動更新
-                  time.sleep(2)
-                  st.rerun()
+                   time.sleep(2)
+                   st.rerun()
