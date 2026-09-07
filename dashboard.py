@@ -207,7 +207,7 @@ m1_low = m1_rates[0]['low'] if m1_rates is not None and len(m1_rates) > 0 else 0
 m1_time = m1_rates[0]['time'] if m1_rates is not None and len(m1_rates) > 0 else 0.0
 m1_range_pips = (m1_high - m1_low) / PIP_VALUE if PIP_VALUE > 0 else 0.0
 
-    if tick:
+if tick:
         current_price = tick.bid
         
         price_diff = current_price - st.session_state.last_price
