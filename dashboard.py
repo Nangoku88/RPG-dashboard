@@ -186,8 +186,12 @@ def send_desktop_popup(title, message):
     except Exception as e:
         print(f"[PC通知エラー] {e}")
 
+import json
+import urllib.request
+
 # === MT5接続チェックとデータ取得 ===
 if 'mt5' in globals() and mt5:
+    # 自宅PC環境（MT5がある場合）
     if not mt5.initialize():
         st.error("❌ MT5の初期化に失敗しました。")
         tick = None
@@ -198,12 +202,27 @@ if 'mt5' in globals() and mt5:
         d1_rates = mt5.copy_rates_from_pos(SYMBOL, mt5.TIMEFRAME_D1, 0, 1)
         m1_rates = mt5.copy_rates_from_pos(SYMBOL, mt5.TIMEFRAME_M1, 0, 1)
 else:
-    # ★ここがポイント：クラウドのときは「ダミーのtick（価格箱）」と「空のデータ箱」を作る！
-    class DummyTick:
-        bid = 153.500  # ダミーの現在値
-    tick = DummyTick()
-    d1_rates = []
-    m1_rates = []
+    # スマホ・クラウド環境：GitHub上の最新データ（data.json）を同期して取得
+    try:
+        # ※【アカウント名】と【リポジトリ名】をボスのGitHub情報に書き換えてね！
+        url = "https://raw.githubusercontent.com/Nangoku88/RPG-dashboard/main/data.json"
+        req = urllib.request.Request(url, headers={'Cache-Control': 'no-cache'})
+        with urllib.request.urlopen(req) as response:
+            cloud_data = json.loads(response.read().decode())
+            
+        class SyncTick:
+            bid = cloud_data['bid']
+            
+        tick = SyncTick()
+        d1_rates = cloud_data['d1_rates']
+        m1_rates = cloud_data['m1_rates']
+    except Exception as e:
+        # 読み込みに失敗したときのセーフティ
+        class DummyTick:
+            bid = 0.0
+        tick = DummyTick()
+        d1_rates = []
+        m1_rates = []
 
 today_open = d1_rates[0]['open'] if d1_rates is not None and len(d1_rates) > 0 else 0.0
 today_low = d1_rates[0]['low'] if d1_rates is not None and len(d1_rates) > 0 else 0.0
